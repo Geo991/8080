@@ -17,6 +17,14 @@ function updateUI() {
     document.getElementById('reg-sp').textContent = cpu.registers.sp.toString(16).toUpperCase().padStart(4, '0');
     document.getElementById('reg-f').textContent = cpu.getFlagByte().toString(16).toUpperCase().padStart(2, '0');
 
+    // FPU Registers
+    if (cpu.fpuRegisters) {
+        document.getElementById('reg-f0').textContent = cpu.fpuRegisters.f0.toFixed(2);
+        document.getElementById('reg-f1').textContent = cpu.fpuRegisters.f1.toFixed(2);
+        document.getElementById('reg-f2').textContent = cpu.fpuRegisters.f2.toFixed(2);
+        document.getElementById('reg-f3').textContent = cpu.fpuRegisters.f3.toFixed(2);
+    }
+
     // Flags
     document.getElementById('flag-s').textContent = cpu.flags.s ? '1' : '0';
     document.getElementById('flag-z').textContent = cpu.flags.z ? '1' : '0';
