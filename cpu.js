@@ -16,6 +16,13 @@ class Intel8080 {
             sp: 0xFFFF,
             pc: 0
         };
+        // Registros FPU
+        this.fpuRegisters = {
+            f0: 0.0,
+            f1: 0.0,
+            f2: 0.0,
+            f3: 0.0
+        };
         this.flags = {
             s: false,
             z: false,
@@ -270,6 +277,9 @@ class Intel8080 {
             case 0xD3: this.fetch(); break; // OUT (Ignored for now)
             case 0xFB: break; // EI
             case 0xF3: break; // DI
+
+            // Instancias del Coprocesador de Punto Flotante
+            case 0xFD: this.executeFPU(this.fetch()); break; // Prefijo para opcodes FPU    
         }
     }
 
@@ -398,6 +408,31 @@ class Intel8080 {
             case 7: this.registers.a = val; break;
         }
     }
+    executeFPU(subOpcode) {
+    switch (subOpcode) {
+        case 0x01: // ADDF F0, F1
+            this.fpuRegisters.f0 += this.fpuRegisters.f1;
+            break;
+        case 0x02: // SUBF F0, F1
+            this.fpuRegisters.f0 -= this.fpuRegisters.f1;
+            break;
+        case 0x03: // MULF F0, F1
+            this.fpuRegisters.f0 *= this.fpuRegisters.f1;
+            break;
+        case 0x04: // DIVF F0, F1
+            if (this.fpuRegisters.f1 !== 0) {
+                this.fpuRegisters.f0 /= this.fpuRegisters.f1;
+            }
+            break;
+        case 0x05: // MOVF_IN (Carga valor entero desde el registro A hacia F0)
+            this.fpuRegisters.f0 = parseFloat(this.registers.a);
+            break;
+        case 0x06: // MOVF_OUT (Guarda el valor de F0 truncado hacia el registro A)
+            this.registers.a = Math.floor(this.fpuRegisters.f0) & 0xFF;
+            break;
+    }
+}
+    
 }
 
 if (typeof module !== 'undefined') {
