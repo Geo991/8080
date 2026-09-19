@@ -79,9 +79,16 @@ class Assembler8080 {
             'CM': { code: 0xFC, bytes: 3 },
             'CPI': { code: 0xFE, bytes: 2 },
             'RST': { bytes: 1 },
+            this.opcodes['ADDF'] = { bytes: 2 };
+            this.opcodes['SUBF'] = { bytes: 2 };
+            this.opcodes['MULF'] = { bytes: 2 };
+            this.opcodes['DIVF'] = { bytes: 2 };
+            this.opcodes['MOVF_IN'] = { bytes: 2 };
+            this.opcodes['MOVF_OUT'] = { bytes: 2 };
         };
         this.regs = { 'B': 0, 'C': 1, 'D': 2, 'E': 3, 'H': 4, 'L': 5, 'M': 6, 'A': 7 };
         this.rps = { 'B': 0, 'C': 0, 'D': 1, 'E': 1, 'H': 2, 'L': 2, 'SP': 3, 'PSW': 3, 'BC': 0, 'DE': 1, 'HL': 2 };
+        this.fpuRegs = { 'F0': 0, 'F1': 1, 'F2': 2, 'F3': 3 };
     }
 
     assemble(source) {
@@ -217,6 +224,23 @@ class Assembler8080 {
         }
 
         return { byte1, byte2, byte3 };
+        
+        // Lógica de generación para instrucciones de punto flotante
+        if (['ADDF', 'SUBF', 'MULF', 'DIVF'].includes(mnemonic)) {
+            byte1 = 0xFD; // Opcode raíz del coprocesador FPU
+            switch (mnemonic) {
+                case 'ADDF': byte2 = 0x01; break;
+                case 'SUBF': byte2 = 0x02; break;
+                case 'MULF': byte2 = 0x03; break;
+                case 'DIVF': byte2 = 0x04; break;
+            }
+        } else if (mnemonic === 'MOVF_IN') {
+            byte1 = 0xFD;
+            byte2 = 0x05;
+        } else if (mnemonic === 'MOVF_OUT') {
+            byte1 = 0xFD;
+            byte2 = 0x06;
+        } else if (mnemonic === 'MOV') 
     }
 
     parseValue(val, labels = {}) {
